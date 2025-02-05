@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ekotürk Haber - Bülten Girişi">
+    <title>Bülten Girişi - Ekotürk Haber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-4">
+                    <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <i class="fas fa-broadcast-tower text-blue-500 text-2xl"></i>
+                        <span class="text-white font-bold text-xl">Ekotürk</span>
+                    </a>
+                </div>
+
+                <!-- Haber Butonu ve Saat -->
+                <div class="flex items-center gap-4">
+                    <a href="/haber" 
+                       class="flex items-center gap-2 bg-blue-500/20 text-blue-300 px-4 py-2 rounded-lg 
+                              hover:bg-blue-500/30 transition-all duration-300">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Habere Git</span>
+                    </a>
+                    <div class="text-gray-400 text-sm">
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ana İçerik: İki Sütun (Sol Bülten Listesi, Sağ Detay) -->
+    <main class="container mx-auto px-4 py-8 md:flex md:gap-6">
+        <!-- Sol Sütun: Bülten Listesi ve "Yeni Bülten Ekle" Butonu -->
+        <div class="md:w-1/3 mb-6 md:mb-0">
+            <!-- Yeni Bülten Ekle Butonu -->
+            <button id="toggleFormBtn" 
+                class="w-full bg-gray-800/50 backdrop-blur border border-gray-700/50 hover:bg-gray-700/50 
+                text-white rounded-lg p-4 mb-6 transition-all duration-300 group">
+                <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-plus text-teal-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    <span>Yeni Bülten Ekle</span>
+                </div>
+            </button>
+
+            <!-- Bülten Akışı Başlığı -->
+            <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-file-alt text-teal-400"></i>
+                Bülten Akışı
+            </h2>
+
+            <!-- Bülten Listesi -->
+            <div id="bulletinFeed" class="space-y-4">
+                <!-- Bültenler buraya dinamik olarak eklenecek -->
+            </div>
+        </div>
+
+        <!-- Sağ Sütun: Seçili Bülten Detayı veya Form -->
+        <div class="md:w-2/3">
+            <!-- Bülten Formu (varsayılan olarak gizli) -->
+            <div id="bulletinForm" class="hidden mb-8">
+                <div class="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-lg p-6">
+                    <form class="space-y-4" onsubmit="return false;">
+                        <input type="hidden" id="bulletinId">
+                        <div>
+                            <label for="bulletinTitle" class="block text-sm font-medium text-gray-300 mb-2">
+                                Bülten Başlığı
+                            </label>
+                            <input type="text" id="bulletinTitle" 
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg 
+                                p-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                                placeholder="Bülten başlığını giriniz...">
+                        </div>
+
+                        <div>
+                            <label for="bulletinSummary" class="block text-sm font-medium text-gray-300 mb-2">
+                                Bülten Özeti
+                            </label>
+                            <input type="text" id="bulletinSummary"
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg 
+                                p-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                                placeholder="Bülten özetini giriniz...">
+                        </div>
+
+                        <div>
+                            <label for="bulletinContent" class="block text-sm font-medium text-gray-300 mb-2">
+                                Bülten İçeriği
+                            </label>
+                            <textarea id="bulletinContent" rows="6"
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg 
+                                p-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                                placeholder="Bülten içeriğini giriniz..."></textarea>
+                            <div class="text-right mt-1">
+                                <span class="text-sm text-gray-400">
+                                    <span id="charCount">0</span>/2000
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="submitButton" onclick="submitBulletin()" 
+                                class="flex-1 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg 
+                                px-4 py-2.5 transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-paper-plane"></i>
+                                <span id="submitButtonText">Bülteni Yayınla</span>
+                            </button>
+                            <button onclick="clearForm()" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg 
+                                px-4 py-2.5 transition-all duration-300">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Seçilen Bülten Detayını Gösterdiğimiz Alan -->
+            <!-- DİKKAT: whitespace-pre-wrap ile satır sonlarını/boşlukları koruyoruz -->
+            <div id="bulletinDetail" class="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-lg p-6 hidden">
+                <div class="text-sm text-gray-400 mb-2 flex items-center gap-2">
+                    <i class="fas fa-clock"></i>
+                    <span id="detailTimestamp"></span>
+                </div>
+                <h3 id="detailTitle" class="text-xl font-semibold text-white mb-2"></h3>
+                <p id="detailSummary" class="text-teal-300 font-medium mb-3"></p>
+                <!-- Burada whitespace-pre-wrap ile metni olduğu gibi gösteriyoruz -->
+                <p id="detailContent" class="text-gray-300 whitespace-pre-wrap"></p>
+            </div>
+
+            <!-- Seçilen Bülten Yokken Gözükecek Mesaj -->
+            <div id="noBulletinSelected" class="text-center py-8 text-gray-400">
+                <i class="fas fa-info-circle text-4xl mb-3"></i>
+                <p>Bir bülten seçiniz veya yeni bülten ekleyiniz.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full py-4 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+        <div class="container mx-auto px-4">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2025 Ekotürk Haber. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Canlı saat
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('tr-TR', options);
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Form görünürlüğünü değiştir
+        document.getElementById("toggleFormBtn").addEventListener("click", function() {
+            const form = document.getElementById("bulletinForm");
+            form.classList.toggle("hidden");
+            if (!form.classList.contains("hidden")) {
+                document.getElementById("bulletinTitle").focus();
+            }
+        });
+
+        // Karakter sayısını güncelle
+        document.getElementById("bulletinContent").addEventListener("input", function() {
+            document.getElementById("charCount").textContent = this.value.length;
+        });
+
+        // Form temizleme
+        function clearForm() {
+            document.getElementById("bulletinId").value = "";
+            document.getElementById("bulletinTitle").value = "";
+            document.getElementById("bulletinSummary").value = "";
+            document.getElementById("bulletinContent").value = "";
+            document.getElementById("charCount").textContent = "0";
+            document.getElementById("bulletinForm").classList.add("hidden");
+            document.getElementById("submitButtonText").textContent = "Bülteni Yayınla";
+            document.getElementById("submitButton").onclick = submitBulletin;
+        }
+
+        // Bülten detayını sağ sütunda göstermek
+        function showBulletinDetail(bulletin) {
+            // Formu sakla
+            document.getElementById("bulletinForm").classList.add("hidden");
+
+            // Detay alanını doldur (white-space: pre-wrap sayesinde \n korunur)
+            document.getElementById("detailTimestamp").textContent =
+                new Date(bulletin.timestamp).toLocaleString('tr-TR');
+            document.getElementById("detailTitle").textContent = bulletin.title;
+            document.getElementById("detailSummary").textContent = bulletin.summary;
+            document.getElementById("detailContent").textContent = bulletin.content;
+
+            // Detay alanını göster, "Bülten yok" mesajını sakla
+            document.getElementById("bulletinDetail").classList.remove("hidden");
+            document.getElementById("noBulletinSelected").classList.add("hidden");
+        }
+
+        // Bülten düzenleme modunu aç
+        function editBulletin(bulletin) {
+            document.getElementById("bulletinId").value = bulletin.id;
+            document.getElementById("bulletinTitle").value = bulletin.title;
+            document.getElementById("bulletinSummary").value = bulletin.summary;
+            document.getElementById("bulletinContent").value = bulletin.content;
+            document.getElementById("charCount").textContent = bulletin.content.length;
+            document.getElementById("submitButtonText").textContent = "Bülteni Güncelle";
+            document.getElementById("submitButton").onclick = updateBulletin;
+
+            // Detay alanını gizle
+            document.getElementById("bulletinDetail").classList.add("hidden");
+            document.getElementById("noBulletinSelected").classList.remove("hidden");
+
+            // Formu göster
+            document.getElementById("bulletinForm").classList.remove("hidden");
+            document.getElementById("bulletinTitle").focus();
+        }
+
+        // Yeni bülten gönderme veya güncelleme
+        async function submitBulletin() {
+            const title = document.getElementById("bulletinTitle").value.trim();
+            const summary = document.getElementById("bulletinSummary").value.trim();
+            const content = document.getElementById("bulletinContent").value.trim();
+
+            if (!title || !summary || !content) {
+                alert("Tüm alanlar doldurulmalıdır!");
+                return;
+            }
+
+            await addBulletin();
+        }
+
+        // Bülten güncelleme
+        async function updateBulletin() {
+            try {
+                const id = document.getElementById("bulletinId").value;
+                const title = document.getElementById("bulletinTitle").value.trim();
+                const summary = document.getElementById("bulletinSummary").value.trim();
+                const content = document.getElementById("bulletinContent").value.trim();
+
+                if (!title || !summary || !content) {
+                    throw new Error("Tüm alanlar doldurulmalıdır!");
+                }
+
+                const response = await fetch(`/update_bulletin/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        summary,
+                        content
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Bülten güncellenirken bir hata oluştu");
+                }
+
+                clearForm();
+                await loadBulletins();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Yeni bülten ekleme
+        async function addBulletin() {
+            try {
+                const title = document.getElementById("bulletinTitle").value.trim();
+                const summary = document.getElementById("bulletinSummary").value.trim();
+                const content = document.getElementById("bulletinContent").value.trim();
+
+                const response = await fetch('/add_bulletin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        summary,
+                        content,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Bülten eklenirken bir hata oluştu");
+                }
+
+                clearForm();
+                await loadBulletins();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Bültenleri yükle
+        function truncateText(text, length = 60) {
+            if (text.length <= length) return text;
+            return text.substring(0, length) + '...';
+        }
+
+        async function loadBulletins() {
+            try {
+                const response = await fetch('/get_bulletins');
+                if (!response.ok) {
+                    throw new Error('Bültenler yüklenirken bir hata oluştu');
+                }
+                const bulletins = await response.json();
+                const bulletinFeed = document.getElementById("bulletinFeed");
+                bulletinFeed.innerHTML = '';
+
+                if (bulletins.length === 0) {
+                    bulletinFeed.innerHTML = `
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fas fa-file-alt text-4xl mb-3"></i>
+                            <p>Henüz bülten bulunmamaktadır</p>
+                        </div>
+                    `;
+                    // Detay alanını da boş göster
+                    document.getElementById("bulletinDetail").classList.add("hidden");
+                    document.getElementById("noBulletinSelected").classList.remove("hidden");
+                    return;
+                }
+
+                bulletins.forEach(item => {
+                    const bulletinCard = document.createElement("div");
+                    bulletinCard.className = "bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-lg p-4 hover:shadow-lg transition-all cursor-pointer flex justify-between items-center";
+
+                    bulletinCard.innerHTML = `
+                        <div class="flex-1" onclick='showBulletinDetail(${JSON.stringify(item)})'>
+                            <h3 class="text-lg font-semibold text-white mb-1">
+                                ${item.title}
+                            </h3>
+                            <p class="text-teal-300 text-sm font-medium mb-1">
+                                ${truncateText(item.summary, 200)}
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                ${new Date(item.timestamp).toLocaleString('tr-TR')}
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-2 ml-4">
+                            <button onclick='event.stopPropagation(); editBulletin(${JSON.stringify(item)})'
+                                class="text-blue-400 hover:text-blue-300 transition-colors">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick='event.stopPropagation(); confirmDelete(${item.id})'
+                                class="text-red-400 hover:text-red-300 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    bulletinFeed.appendChild(bulletinCard);
+                });
+
+                // Her yüklemede sağ tarafı varsayılan hale getir
+                document.getElementById("bulletinDetail").classList.add("hidden");
+                document.getElementById("noBulletinSelected").classList.remove("hidden");
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Bültenler yüklenirken bir hata oluştu');
+            }
+        }
+
+        // Bülten silme onayı
+        function confirmDelete(id) {
+            if (confirm('Bu bülteni silmek istediğinize emin misiniz?')) {
+                deleteBulletin(id);
+            }
+        }
+
+        // Bülten silme
+        async function deleteBulletin(id) {
+            try {
+                const response = await fetch(`/delete_bulletin/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Bülten silinirken bir hata oluştu');
+                }
+
+                await loadBulletins();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Sayfa yüklendiğinde bültenleri getir
+        document.addEventListener('DOMContentLoaded', loadBulletins);
+    </script>
+</body>
+</html>
