@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ekotürk Haber - Profesyonel Haber Yönetim Sistemi">
+    <title>Ekotürk Haber Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-broadcast-tower text-blue-500 text-2xl"></i>
+                    <span class="text-white font-bold text-xl">Ekotürk</span>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    <span id="currentTime"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Logo ve Başlık -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-500 to-teal-400 text-transparent bg-clip-text">
+                Haber Yönetim Sistemi
+            </h1>
+            <p class="text-xl text-gray-400">Ekotürk Haber ve Bülten Ekleme</p>
+        </div>
+
+        <!-- Ana Menü Kartları -->
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <!-- Hızlı Haber Kartı -->
+            <a href="/haber" class="group">
+                <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 hover:bg-gray-700/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl border border-gray-700/50">
+                    <div class="text-blue-400 text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold mb-2 text-white">Hızlı Haber Girişi</h2>
+                    <p class="text-gray-400 group-hover:text-gray-300">
+                        Anlık haberleri hızlıca sisteme ekleyin ve yönetin
+                    </p>
+                    <div class="mt-4 flex items-center text-blue-400 text-sm">
+                        <span>Habere Git</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Bülten Kartı -->
+            <a href="/bulten" class="group">
+                <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 hover:bg-gray-700/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl border border-gray-700/50">
+                    <div class="text-teal-400 text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold mb-2 text-white">Bülten Girişi</h2>
+                    <p class="text-gray-400 group-hover:text-gray-300">
+                        Detaylı bülten ve analizlerinizi oluşturun
+                    </p>
+                    <div class="mt-4 flex items-center text-teal-400 text-sm">
+                        <span>Bültene Git</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full py-4 border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2025 Ekotürk Haber. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Canlı saat
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('tr-TR', options);
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

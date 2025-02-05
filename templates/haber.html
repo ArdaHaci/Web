@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ekotürk Haber - Hızlı Haber Girişi">
+    <title>Hızlı Haber Girişi - Ekotürk Haber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-4">
+                    <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <i class="fas fa-broadcast-tower text-blue-500 text-2xl"></i>
+                        <span class="text-white font-bold text-xl">Ekotürk</span>
+                    </a>
+                </div>
+
+                <!-- Bülten Butonu ve Saat -->
+                <div class="flex items-center gap-4">
+                    <a href="/bulten" 
+                       class="flex items-center gap-2 bg-teal-500/20 text-teal-300 px-4 py-2 rounded-lg 
+                              hover:bg-teal-500/30 transition-all duration-300">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Bültene Git</span>
+                    </a>
+                    <div class="text-gray-400 text-sm">
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Başlık -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-500 to-teal-400 text-transparent bg-clip-text">
+                Hızlı Haber Girişi
+            </h1>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Haber Ekleme Butonu -->
+            <button id="toggleFormBtn" 
+                class="w-full bg-gray-800/50 backdrop-blur border border-gray-700/50 hover:bg-gray-700/50 
+                text-white rounded-lg p-4 mb-6 transition-all duration-300 group">
+                <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-plus text-blue-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    <span>Yeni Haber Ekle</span>
+                </div>
+            </button>
+
+            <!-- Haber Formu -->
+            <div id="newsForm" class="hidden mb-8">
+                <div class="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-lg p-6">
+                    <form class="space-y-4" onsubmit="return false;">
+                        <input type="hidden" id="newsId">
+                        <div>
+                            <label for="newsTitle" class="block text-sm font-medium text-gray-300 mb-2">
+                                Haber Başlığı
+                            </label>
+                            <input type="text" id="newsTitle" 
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg 
+                                p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                placeholder="Haber başlığını giriniz...">
+                        </div>
+
+                        <div>
+                            <label for="newsContent" class="block text-sm font-medium text-gray-300 mb-2">
+                                Haber İçeriği
+                            </label>
+                            <textarea id="newsContent" rows="4"
+                                class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg 
+                                p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                placeholder="Haber içeriğini giriniz..."></textarea>
+                            <div class="text-right mt-1">
+                                <span class="text-sm text-gray-400">
+                                    <span id="charCount">0</span>/1000
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="submitButton" onclick="submitNews()" 
+                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg 
+                                px-4 py-2.5 transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-paper-plane"></i>
+                                <span id="submitButtonText">Haberi Yayınla</span>
+                            </button>
+                            <button onclick="clearForm()" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg 
+                                px-4 py-2.5 transition-all duration-300">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Haber Listesi -->
+            <div>
+                <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-newspaper text-blue-400"></i>
+                    Haber Akışı
+                </h2>
+                <div id="newsFeed" class="space-y-4">
+                    <!-- Haberler buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full py-4 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+        <div class="container mx-auto px-4">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2025 Ekotürk Haber. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Canlı saat
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('tr-TR', options);
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Form görünürlüğünü değiştir
+        document.getElementById("toggleFormBtn").addEventListener("click", function() {
+            const form = document.getElementById("newsForm");
+            form.classList.toggle("hidden");
+            if (!form.classList.contains("hidden")) {
+                document.getElementById("newsTitle").focus();
+            }
+        });
+
+        // Karakter sayısını güncelle
+        document.getElementById("newsContent").addEventListener("input", function() {
+            document.getElementById("charCount").textContent = this.value.length;
+        });
+
+        // Form temizleme
+        function clearForm() {
+            document.getElementById("newsId").value = "";
+            document.getElementById("newsTitle").value = "";
+            document.getElementById("newsContent").value = "";
+            document.getElementById("charCount").textContent = "0";
+            document.getElementById("newsForm").classList.add("hidden");
+            document.getElementById("submitButtonText").textContent = "Haberi Yayınla";
+            document.getElementById("submitButton").onclick = submitNews;
+        }
+
+        // Haber düzenleme modunu aç
+        function editNews(news) {
+            document.getElementById("newsId").value = news.id;
+            document.getElementById("newsTitle").value = news.title;
+            document.getElementById("newsContent").value = news.content;
+            document.getElementById("charCount").textContent = news.content.length;
+            document.getElementById("submitButtonText").textContent = "Haberi Güncelle";
+            document.getElementById("submitButton").onclick = updateNews;
+            document.getElementById("newsForm").classList.remove("hidden");
+            document.getElementById("newsTitle").focus();
+        }
+
+        // Haber gönderme (Yeni/Güncelleme)
+        async function submitNews() {
+            const title = document.getElementById("newsTitle").value.trim();
+            const content = document.getElementById("newsContent").value.trim();
+
+            if (!title || !content) {
+                alert("Başlık ve içerik alanları boş bırakılamaz!");
+                return;
+            }
+
+            await addNews();
+        }
+
+        // Haber güncelleme
+        async function updateNews() {
+            try {
+                const id = document.getElementById("newsId").value;
+                const title = document.getElementById("newsTitle").value.trim();
+                const content = document.getElementById("newsContent").value.trim();
+
+                if (!title || !content) {
+                    throw new Error("Başlık ve içerik alanları boş bırakılamaz!");
+                }
+
+                const response = await fetch(`/update_news/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Haber güncellenirken bir hata oluştu");
+                }
+
+                clearForm();
+                await loadNews();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Yeni haber ekleme
+        async function addNews() {
+            try {
+                const title = document.getElementById("newsTitle").value.trim();
+                const content = document.getElementById("newsContent").value.trim();
+
+                const response = await fetch('/add_news', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Haber eklenirken bir hata oluştu");
+                }
+
+                clearForm();
+                await loadNews();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Haberleri yükle
+        // Haber içeriğini kısaltmak için yardımcı fonksiyon
+        function truncateText(text, length = 215) {
+            if (text.length <= length) return text;
+            return text.substring(0, length) + '...';
+        }
+
+        // loadNews fonksiyonunda haber kartı oluşturma kısmını güncelleyelim
+        async function loadNews() {
+            try {
+                const response = await fetch('/get_news');
+                if (!response.ok) {
+                    throw new Error('Haberler yüklenirken bir hata oluştu');
+                }
+                const news = await response.json();
+                const newsFeed = document.getElementById("newsFeed");
+                newsFeed.innerHTML = '';
+
+                if (news.length === 0) {
+                    newsFeed.innerHTML = `
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fas fa-newspaper text-4xl mb-3"></i>
+                            <p>Henüz haber bulunmamaktadır</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                news.forEach(item => {
+                    const newsCard = document.createElement("div");
+                    newsCard.className = "bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-lg p-6 hover:shadow-lg transition-all";
+
+                    const truncatedContent = truncateText(item.content);
+                    const isLongContent = item.content.length > 215;
+
+                    newsCard.innerHTML = `
+                        <div class="flex justify-between items-start gap-4">
+                            <div class="flex-1">
+                                <div class="text-sm text-gray-400 mb-2 flex items-center gap-2">
+                                    <i class="fas fa-clock"></i>
+                                    ${new Date(item.timestamp).toLocaleString('tr-TR')}
+                                </div>
+                                <h3 class="text-lg font-semibold text-white mb-2">${item.title}</h3>
+                                <div class="relative">
+                                    <p class="text-gray-300 content-short">${truncatedContent}</p>
+                                    <p class="text-gray-300 content-full hidden">${item.content}</p>
+                                    ${isLongContent ? `
+                                        <button onclick="toggleContent(this)" 
+                                            class="text-blue-400 hover:text-blue-300 transition-colors text-sm mt-2 flex items-center gap-1">
+                                            <span class="toggle-text">Devamını Gör</span>
+                                            <i class="fas fa-chevron-down toggle-icon"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button onclick='editNews(${JSON.stringify(item)})'
+                                    class="text-blue-400 hover:text-blue-300 transition-colors">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="confirmDelete(${item.id})"
+                                    class="text-red-400 hover:text-red-300 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    newsFeed.appendChild(newsCard);
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Haberler yüklenirken bir hata oluştu');
+            }
+        }
+
+        // İçeriği toggle yapacak fonksiyon
+        function toggleContent(button) {
+            const contentDiv = button.parentElement;
+            const shortContent = contentDiv.querySelector('.content-short');
+            const fullContent = contentDiv.querySelector('.content-full');
+            const toggleText = button.querySelector('.toggle-text');
+            const toggleIcon = button.querySelector('.toggle-icon');
+
+            if (shortContent.classList.contains('hidden')) {
+                // İçeriği kısalt
+                shortContent.classList.remove('hidden');
+                fullContent.classList.add('hidden');
+                toggleText.textContent = 'Haberi Görüntüle ';
+                toggleIcon.classList.remove('fa-chevron-up');
+                toggleIcon.classList.add('fa-chevron-down');
+            } else {
+                // İçeriği genişlet
+                shortContent.classList.add('hidden');
+                fullContent.classList.remove('hidden');
+                toggleText.textContent = 'Daha Az Göster';
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            }
+        }
+        // Haber silme onayı
+        function confirmDelete(id) {
+            if (confirm('Bu haberi silmek istediğinize emin misiniz?')) {
+                deleteNews(id);
+            }
+        }
+
+        // Haber silme
+        async function deleteNews(id) {
+            try {
+                const response = await fetch(`/delete_news/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Haber silinirken bir hata oluştu');
+                }
+
+                await loadNews();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Sayfa yüklendiğinde haberleri getir
+        document.addEventListener('DOMContentLoaded', loadNews);
+    </script>
+</body>
+</html>
